@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.clipboard-history-popup"
+          path="/org/gnome/shell/extensions/clipboard-history-popup/">
+    <key name="toggle-clipboard" type="as">
+      <default>[]</default>
+      <summary>Keyboard shortcut that opens the clipboard history</summary>
+    </key>
+    <key name="history-size" type="i">
+      <range min="5" max="200"/>
+      <default>25</default>
+      <summary>Maximum number of unpinned items kept in the history</summary>
+    </key>
+    <key name="theme" type="s">
+      <choices>
+        <choice value="light"/>
+        <choice value="dark"/>
+        <choice value="auto"/>
+      </choices>
+      <default>'light'</default>
+      <summary>Popup theme: light, dark or auto (follows the system style)</summary>
+    </key>
+    <key name="keyboard-shortcuts" type="b">
+      <default>true</default>
+      <summary>Keyboard operations inside the popup (arrows, Enter, Delete, P)</summary>
+    </key>
+    <key name="save-images" type="b">
+      <default>true</default>
+      <summary>Keep copied images in the history</summary>
+    </key>
+    <key name="restore-super-v" type="b">
+      <default>false</default>
+      <summary>Internal: give Super+V back to the notification list when disabled</summary>
+    </key>
+  </schema>
+</schemalist>
