@@ -23,10 +23,16 @@ const TERMINALS = ['terminal', 'ptyxis', 'kgx', 'console', 'tilix', 'kitty', 'al
 const SUPER_V = '<super>v';
 const SHORTCUT_KEY = 'toggle-clipboard';
 
+function logError(what, e) {
+    console.error(`[clipboard-history-popup] ${what}: ${e.message}`);
+}
+
 export default class ClipboardHistoryPopupExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._store = new ClipboardStore('clipboard-history-popup', this._settings.get_int('history-size'));
+        this._store.load().catch(e =>
+            logError('failed to load the history', e));
         this._clipboard = St.Clipboard.get_default();
         this._timeouts = new Set();
         this._readTimeoutId = 0;
@@ -109,7 +115,7 @@ export default class ClipboardHistoryPopupExtension extends Extension {
                 this._settings.set_boolean('restore-super-v', true);
             }
         } catch (e) {
-            console.error(`[${this.uuid}] failed to free Super+V: ${e.message}`);
+            logError('failed to free Super+V', e);
         }
     }
 
@@ -123,7 +129,7 @@ export default class ClipboardHistoryPopupExtension extends Extension {
                 keys.set_strv('toggle-message-tray', ['<Super>v', ...current]);
             this._settings.set_boolean('restore-super-v', false);
         } catch (e) {
-            console.error(`[${this.uuid}] failed to restore Super+V: ${e.message}`);
+            logError('failed to restore Super+V', e);
         }
     }
 
@@ -140,7 +146,7 @@ export default class ClipboardHistoryPopupExtension extends Extension {
             try {
                 this._readClipboard();
             } catch (e) {
-                console.error(`[${this.uuid}] failed to read the clipboard: ${e.message}`);
+                logError('failed to read the clipboard', e);
             }
             return GLib.SOURCE_REMOVE;
         });
@@ -169,8 +175,8 @@ export default class ClipboardHistoryPopupExtension extends Extension {
             mimes.find(m => m.startsWith('image/'));
         if (imageMime) {
             this._clipboard.get_content(St.ClipboardType.CLIPBOARD, imageMime, (_cb, bytes) => {
-                if (this._store && bytes)
-                    this._store.addImage(bytes, imageMime);
+                this._store?.addImage(bytes, imageMime).catch(e =>
+                    logError('failed to store an image', e));
             });
         }
     }
@@ -207,7 +213,7 @@ export default class ClipboardHistoryPopupExtension extends Extension {
                 this._atspiListener.register(e);
         } catch (e) {
             this._atspiListener = null;
-            console.error(`[${this.uuid}] AT-SPI unavailable: ${e.message}`);
+            logError('AT-SPI unavailable', e);
         }
     }
 
@@ -294,7 +300,7 @@ export default class ClipboardHistoryPopupExtension extends Extension {
             if (!popup.open(this._anchor()))
                 this._popup = null;
         } catch (e) {
-            console.error(`[${this.uuid}] failed to open the popup: ${e.message}\n${e.stack}`);
+            logError('failed to open the popup', e);
             popup?.close();
             this._popup = null;
         }
@@ -303,20 +309,25 @@ export default class ClipboardHistoryPopupExtension extends Extension {
     // ---------- pasting ----------
 
     _pasteItem(item) {
-        if (item.type === 'text') {
-            this._clipboard.set_text(St.ClipboardType.CLIPBOARD, item.text);
-        } else {
-            const bytes = this._store.readImage(item);
-            if (!bytes)
-                return;
-            this._clipboard.set_content(St.ClipboardType.CLIPBOARD, item.mime ?? 'image/png', bytes);
-        }
-
         const wmClass = (this._targetWindow?.get_wm_class() ?? '').toLowerCase();
         const terminal = TERMINALS.some(t => wmClass.includes(t));
         this._popup?.close();
 
-        // Give the focus back to the app before sending the paste shortcut.
+        if (item.type === 'text') {
+            this._clipboard.set_text(St.ClipboardType.CLIPBOARD, item.text);
+            this._pasteSoon(terminal);
+            return;
+        }
+        this._store.readImage(item).then(bytes => {
+            if (!bytes || !this._clipboard)
+                return;
+            this._clipboard.set_content(St.ClipboardType.CLIPBOARD, item.mime ?? 'image/png', bytes);
+            this._pasteSoon(terminal);
+        }).catch(e => logError('failed to paste an image', e));
+    }
+
+    // Give the focus back to the app before sending the paste shortcut.
+    _pasteSoon(terminal) {
         this._schedule(120, () => this._sendPasteKeys(terminal));
     }
 

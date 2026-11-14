@@ -6,12 +6,21 @@
 //   (a tmpfs that is cleared on logout/reboot, but survives the lock screen)
 // - Images: ~/.local/share/clipboard-history-popup/images/<sha256>.<ext>
 //   (images of unpinned items are deleted the next time the extension starts)
+//
+// All file access is asynchronous so the Shell never blocks on disk IO.
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
+Gio._promisify(Gio.File.prototype, 'load_contents_async');
+Gio._promisify(Gio.File.prototype, 'replace_contents_bytes_async', 'replace_contents_finish');
+Gio._promisify(Gio.File.prototype, 'delete_async');
+Gio._promisify(Gio.File.prototype, 'enumerate_children_async');
+Gio._promisify(Gio.FileEnumerator.prototype, 'next_files_async');
+
 const MAX_TEXT_CHARS = 1_000_000;
 const MAX_IMAGE_BYTES = 30 * 1024 * 1024;
+const WRITE_FLAGS = Gio.FileCreateFlags.REPLACE_DESTINATION | Gio.FileCreateFlags.PRIVATE;
 
 const EXTENSIONS = {
     'image/png': 'png',
@@ -22,28 +31,22 @@ const EXTENSIONS = {
     'image/tiff': 'tiff',
 };
 
-function readJson(path) {
+function logError(what, e) {
+    console.error(`[clipboard-history-popup] ${what}: ${e.message}`);
+}
+
+async function readJson(path) {
     try {
-        const [ok, contents] = Gio.File.new_for_path(path).load_contents(null);
-        if (!ok)
-            return null;
+        const [contents] = await Gio.File.new_for_path(path).load_contents_async(null);
         return JSON.parse(new TextDecoder().decode(contents));
     } catch {
-        return null;
+        return null; // missing or unreadable file: start empty
     }
 }
 
-function writeFile(path, data) {
-    try {
-        Gio.File.new_for_path(path).replace_contents(
-            data, null, false,
-            Gio.FileCreateFlags.REPLACE_DESTINATION | Gio.FileCreateFlags.PRIVATE,
-            null);
-        return true;
-    } catch (e) {
-        console.error(`[clipboard-history-popup] failed to write ${path}: ${e.message}`);
-        return false;
-    }
+function writeBytes(path, bytes) {
+    return Gio.File.new_for_path(path)
+        .replace_contents_bytes_async(bytes, null, false, WRITE_FLAGS, null);
 }
 
 export class ClipboardStore {
@@ -59,7 +62,76 @@ export class ClipboardStore {
         this._historyFile = GLib.build_filenamev([this._runtimeDir, 'history.json']);
 
         this.items = [];
-        this._load();
+        this._writeQueue = Promise.resolve();
+    }
+
+    // ---------- loading ----------
+
+    async load() {
+        const [history, pinned, existingImages] = await Promise.all([
+            readJson(this._historyFile),
+            readJson(this._pinnedFile),
+            this._listImages(),
+        ]);
+        const pinnedHashes = new Set((pinned ?? []).map(i => i?.hash));
+        const isValid = item => {
+            if (!item || typeof item.hash !== 'string')
+                return false;
+            if (item.type === 'text')
+                return typeof item.text === 'string';
+            if (item.type === 'image')
+                return existingImages.has(item.file);
+            return false;
+        };
+
+        // Items copied while loading stay first.
+        const seen = new Set(this.items.map(i => i.hash));
+        const loaded = [];
+        // The current session history keeps its order...
+        for (const item of history ?? []) {
+            if (!isValid(item) || seen.has(item.hash))
+                continue;
+            item.pinned = pinnedHashes.has(item.hash);
+            seen.add(item.hash);
+            loaded.push(item);
+        }
+        // ...then pinned items missing from it (e.g. after a reboot).
+        for (const item of pinned ?? []) {
+            if (!isValid(item) || seen.has(item.hash))
+                continue;
+            item.pinned = true;
+            seen.add(item.hash);
+            loaded.push(item);
+        }
+
+        this.items = [...this.items, ...loaded];
+        this._order();
+        this._trim();
+        this._save();
+
+        // Delete images no item refers to (e.g. unpinned ones after a reboot).
+        const keep = new Set(this.items.filter(i => i.type === 'image').map(i => i.file));
+        for (const name of existingImages) {
+            if (!keep.has(name))
+                this._deleteFile(GLib.build_filenamev([this._imagesDir, name]));
+        }
+    }
+
+    async _listImages() {
+        const names = new Set();
+        try {
+            const dir = Gio.File.new_for_path(this._imagesDir);
+            const en = await dir.enumerate_children_async('standard::name',
+                Gio.FileQueryInfoFlags.NONE, GLib.PRIORITY_DEFAULT, null);
+            let infos;
+            while ((infos = await en.next_files_async(50, GLib.PRIORITY_DEFAULT, null)).length) {
+                for (const info of infos)
+                    names.add(info.get_name());
+            }
+        } catch (e) {
+            logError('failed to list images', e);
+        }
+        return names;
     }
 
     // ---------- reading ----------
@@ -68,12 +140,12 @@ export class ClipboardStore {
         return GLib.build_filenamev([this._imagesDir, item.file]);
     }
 
-    readImage(item) {
+    async readImage(item) {
         try {
-            const [, contents] = Gio.File.new_for_path(this.imagePath(item)).load_contents(null);
+            const [contents] = await Gio.File.new_for_path(this.imagePath(item)).load_contents_async(null);
             return new GLib.Bytes(contents);
         } catch (e) {
-            console.error(`[clipboard-history-popup] failed to read image: ${e.message}`);
+            logError('failed to read image', e);
             return null;
         }
     }
@@ -87,19 +159,21 @@ export class ClipboardStore {
         return this._add({type: 'text', text, hash});
     }
 
-    addImage(bytes, mime) {
+    async addImage(bytes, mime) {
         const size = bytes?.get_size() ?? 0;
         if (size === 0 || size > MAX_IMAGE_BYTES)
             return false;
 
         const hash = `i-${GLib.compute_checksum_for_bytes(GLib.ChecksumType.SHA256, bytes)}`;
-        const ext = EXTENSIONS[mime] ?? 'img';
-        const file = `${hash}.${ext}`;
+        const file = `${hash}.${EXTENSIONS[mime] ?? 'img'}`;
 
         if (!this.items.some(i => i.hash === hash)) {
-            const path = GLib.build_filenamev([this._imagesDir, file]);
-            if (!writeFile(path, bytes.toArray()))
+            try {
+                await writeBytes(GLib.build_filenamev([this._imagesDir, file]), bytes);
+            } catch (e) {
+                logError('failed to save image', e);
                 return false;
+            }
         }
         return this._add({type: 'image', file, mime, hash});
     }
@@ -141,11 +215,6 @@ export class ClipboardStore {
         this._save();
     }
 
-    // Unpinned items first (most recent first), pinned items at the end.
-    _order() {
-        this.items = [...this.items.filter(i => !i.pinned), ...this.items.filter(i => i.pinned)];
-    }
-
     remove(item) {
         this.items = this.items.filter(i => i !== item);
         this._deleteImage(item);
@@ -161,6 +230,11 @@ export class ClipboardStore {
 
     // ---------- internals ----------
 
+    // Unpinned items first (most recent first), pinned items at the end.
+    _order() {
+        this.items = [...this.items.filter(i => !i.pinned), ...this.items.filter(i => i.pinned)];
+    }
+
     _trim() {
         let unpinned = 0;
         this.items = this.items.filter(item => {
@@ -175,76 +249,25 @@ export class ClipboardStore {
     }
 
     _deleteImage(item) {
-        if (item.type !== 'image')
-            return;
-        try {
-            Gio.File.new_for_path(this.imagePath(item)).delete(null);
-        } catch {}
-    }
-
-    _isValid(item) {
-        if (!item || typeof item.hash !== 'string')
-            return false;
-        if (item.type === 'text')
-            return typeof item.text === 'string';
         if (item.type === 'image')
-            return typeof item.file === 'string' &&
-                GLib.file_test(this.imagePath(item), GLib.FileTest.EXISTS);
-        return false;
+            this._deleteFile(this.imagePath(item));
     }
 
-    _load() {
-        const history = readJson(this._historyFile) ?? [];
-        const pinned = readJson(this._pinnedFile) ?? [];
-        const pinnedHashes = new Set(pinned.map(i => i?.hash));
-        const seen = new Set();
-        const items = [];
-
-        // The current session history (if any) keeps its order.
-        for (const item of history) {
-            if (!this._isValid(item) || seen.has(item.hash))
-                continue;
-            item.pinned = pinnedHashes.has(item.hash);
-            seen.add(item.hash);
-            items.push(item);
-        }
-        // Pinned items missing from it (e.g. after a reboot).
-        for (const item of pinned) {
-            if (!this._isValid(item) || seen.has(item.hash))
-                continue;
-            item.pinned = true;
-            seen.add(item.hash);
-            items.push(item);
-        }
-
-        this.items = items;
-        this._order();
-        this._trim();
-        this._collectGarbage();
-        this._save();
+    _deleteFile(path) {
+        Gio.File.new_for_path(path).delete_async(GLib.PRIORITY_DEFAULT, null)
+            .catch(e => logError('failed to delete file', e));
     }
 
-    // Delete images that no item refers to (e.g. unpinned ones after a reboot).
-    _collectGarbage() {
-        const keep = new Set(this.items.filter(i => i.type === 'image').map(i => i.file));
-        try {
-            const dir = Gio.File.new_for_path(this._imagesDir);
-            const en = dir.enumerate_children('standard::name', Gio.FileQueryInfoFlags.NONE, null);
-            let info;
-            while ((info = en.next_file(null))) {
-                const name = info.get_name();
-                if (!keep.has(name))
-                    dir.get_child(name).delete(null);
-            }
-            en.close(null);
-        } catch (e) {
-            console.error(`[clipboard-history-popup] image cleanup: ${e.message}`);
-        }
-    }
-
+    // Writes are queued so an older snapshot never overwrites a newer one.
     _save() {
         const enc = new TextEncoder();
-        writeFile(this._historyFile, enc.encode(JSON.stringify(this.items)));
-        writeFile(this._pinnedFile, enc.encode(JSON.stringify(this.items.filter(i => i.pinned))));
+        const history = new GLib.Bytes(enc.encode(JSON.stringify(this.items)));
+        const pinned = new GLib.Bytes(enc.encode(JSON.stringify(this.items.filter(i => i.pinned))));
+        this._writeQueue = this._writeQueue
+            .then(() => Promise.all([
+                writeBytes(this._historyFile, history),
+                writeBytes(this._pinnedFile, pinned),
+            ]))
+            .catch(e => logError('failed to save history', e));
     }
 }
