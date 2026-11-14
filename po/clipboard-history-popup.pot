@@ -1,0 +1,157 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the clipboard-history-popup package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: clipboard-history-popup\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-14 14:14-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: clipboard-history-popup@bncgabriel.github.io/popup.js:128
+msgid "Clipboard"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/popup.js:136
+msgid "Clear all"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/popup.js:167
+msgid "You haven’t copied anything yet"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/popup.js:172
+msgid "When you copy something, it will show up here."
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/popup.js:296
+#: clipboard-history-popup@bncgabriel.github.io/popup.js:363
+msgid "Delete"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/popup.js:345
+msgid "Do you really want to delete this pinned item?"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/popup.js:347
+msgid ""
+"This item is pinned and will no longer be\n"
+"kept after a restart."
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/popup.js:359
+msgid "Cancel"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:21
+msgid "General"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:35
+msgid "Keyboard"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:36
+msgid "Esc always closes the popup."
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:40
+msgid "Open the clipboard history"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:41
+msgid ""
+"Super+V is suggested. Choosing it moves it away from the notification list, "
+"which stays on Super+M."
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:44
+msgid "Not set"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:48
+msgid "Use Super+V"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:54
+msgid "Choose another shortcut"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:60
+msgid "Remove the shortcut"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:88
+msgid "Keyboard operations"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:89
+msgid "↑ ↓ to move · Enter to paste · Delete/Backspace to delete · P to pin"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:103
+msgid "New shortcut"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:114
+msgid "Press the new shortcut"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:118
+msgid "Esc to cancel · Backspace to remove the shortcut"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:154
+msgid "Light"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:155
+msgid "Dark"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:156
+msgid "Follow the system style"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:158
+msgid "Appearance"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:160
+msgid "Theme"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:187
+msgid "History"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:188
+msgid ""
+"The history stays on this computer. Unpinned items are cleared on logout or "
+"reboot."
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:192
+msgid "Save images"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:193
+msgid "Keep copied images in the history, with a preview"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:199
+msgid "History size"
+msgstr ""
+
+#: clipboard-history-popup@bncgabriel.github.io/prefs.js:200
+msgid "Maximum number of unpinned items"
+msgstr ""
