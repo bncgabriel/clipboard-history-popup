@@ -1,0 +1,228 @@
+/* ============ Janela (visual Windows 11) ============ */
+
+.cbw-popup {
+  border-radius: 8px;
+  padding: 14px 6px 10px 12px;
+  font-family: "Segoe UI", "Ubuntu", "Cantarell", sans-serif;
+}
+
+.cbw-header {
+  padding: 0 8px 10px 2px;
+}
+
+.cbw-title {
+  font-size: 10.5pt;
+}
+
+.cbw-clear {
+  padding: 3px 11px;
+  border-radius: 4px;
+  font-size: 9pt;
+}
+
+.cbw-list {
+  spacing: 8px;
+  padding-right: 8px;
+}
+
+/* ============ Cartões ============ */
+
+.cbw-item {
+  border-radius: 6px;
+  border-width: 1px;
+  padding: 2px 4px 2px 2px;
+  min-height: 70px;
+}
+
+.cbw-item-content {
+  padding: 10px 6px 10px 10px;
+  border-radius: 5px;
+}
+
+.cbw-text {
+  font-size: 10pt;
+}
+
+.cbw-image {
+  border-radius: 3px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: left center;
+}
+
+.cbw-side {
+  padding: 4px 0;
+}
+
+.cbw-icon-btn {
+  padding: 5px 7px;
+  border-radius: 4px;
+}
+
+.cbw-empty {
+  padding: 70px 16px;
+  spacing: 6px;
+}
+
+.cbw-empty-title {
+  font-size: 10.5pt;
+  font-weight: bold;
+}
+
+.cbw-empty-text {
+  font-size: 9pt;
+}
+
+/* ============ Menu "⋯" ============ */
+
+.cbw-menu {
+  border-radius: 8px;
+  border-width: 1px;
+  padding: 4px;
+  min-width: 150px;
+}
+
+.cbw-menu-item {
+  padding: 7px 10px;
+  border-radius: 4px;
+}
+
+.cbw-menu-box {
+  spacing: 10px;
+  font-size: 9.5pt;
+}
+
+/* ============ Tema claro (padrão, igual ao Windows) ============ */
+
+.cbw-popup.cbw-light {
+  background-color: rgba(243, 243, 243, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  color: #1b1b1b;
+}
+
+.cbw-light .cbw-title { color: #1b1b1b; }
+
+.cbw-light .cbw-clear {
+  background-color: #fbfbfb;
+  border: 1px solid #d6d6d6;
+  color: #1b1b1b;
+}
+.cbw-light .cbw-clear:hover { background-color: #f0f0f0; }
+
+.cbw-light .cbw-item {
+  background-color: #ffffff;
+  border-color: #e3e3e3;
+}
+.cbw-light .cbw-item:hover { background-color: #f9f9f9; border-color: #d4d4d4; }
+.cbw-light .cbw-item.selected { border-color: #1b1b1b; border-width: 2px; padding: 1px 3px 1px 1px; }
+
+.cbw-light .cbw-text { color: #1b1b1b; }
+.cbw-light .cbw-icon-btn:hover { background-color: rgba(0, 0, 0, 0.06); }
+.cbw-light .cbw-empty-title { color: #1b1b1b; }
+.cbw-light .cbw-empty-text { color: #5c5c5c; }
+
+.cbw-menu.cbw-light {
+  background-color: #f9f9f9;
+  border-color: rgba(0, 0, 0, 0.14);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  color: #1b1b1b;
+}
+.cbw-light .cbw-menu-item:hover { background-color: rgba(0, 0, 0, 0.06); }
+
+/* ============ Tema escuro (Windows em modo escuro) ============ */
+
+.cbw-popup.cbw-dark {
+  background-color: rgba(32, 32, 32, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+}
+
+.cbw-dark .cbw-title { color: #ffffff; }
+
+.cbw-dark .cbw-clear {
+  background-color: #2d2d2d;
+  border: 1px solid #3c3c3c;
+  color: #ffffff;
+}
+.cbw-dark .cbw-clear:hover { background-color: #353535; }
+
+.cbw-dark .cbw-item {
+  background-color: #2b2b2b;
+  border-color: #353535;
+}
+.cbw-dark .cbw-item:hover { background-color: #323232; border-color: #3f3f3f; }
+.cbw-dark .cbw-item.selected { border-color: #ffffff; border-width: 2px; padding: 1px 3px 1px 1px; }
+
+.cbw-dark .cbw-text { color: #ffffff; }
+.cbw-dark .cbw-icon-btn:hover { background-color: rgba(255, 255, 255, 0.08); }
+.cbw-dark .cbw-empty-title { color: #ffffff; }
+.cbw-dark .cbw-empty-text { color: #c5c5c5; }
+
+.cbw-menu.cbw-dark {
+  background-color: #2c2c2c;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+}
+.cbw-dark .cbw-menu-item:hover { background-color: rgba(255, 255, 255, 0.08); }
+
+/* ============ Excluir (camada vermelha translúcida) e fixar ============ */
+
+.cbw-side-bottom { spacing: 2px; }
+.cbw-icon-btn { padding: 5px 6px; }
+.cbw-clear { text-align: center; }
+
+.cbw-light .cbw-danger { background-color: rgba(196, 43, 28, 0.08); }
+.cbw-light .cbw-danger:hover { background-color: rgba(196, 43, 28, 0.18); }
+.cbw-dark .cbw-danger { background-color: rgba(255, 99, 99, 0.12); }
+.cbw-dark .cbw-danger:hover { background-color: rgba(255, 99, 99, 0.24); }
+
+.cbw-light .cbw-pin.active { background-color: rgba(0, 95, 184, 0.10); }
+.cbw-dark .cbw-pin.active { background-color: rgba(96, 205, 255, 0.14); }
+
+.cbw-menu.cbw-light .cbw-menu-item.cbw-danger { color: #c42b1c; }
+.cbw-menu.cbw-dark .cbw-menu-item.cbw-danger { color: #ff99a4; }
+.cbw-menu .cbw-menu-item.cbw-danger { background-color: transparent; }
+.cbw-menu.cbw-light .cbw-menu-item.cbw-danger:hover { background-color: rgba(196, 43, 28, 0.12); }
+.cbw-menu.cbw-dark .cbw-menu-item.cbw-danger:hover { background-color: rgba(255, 99, 99, 0.18); }
+
+/* Cartão fixado: borda levemente na cor de destaque */
+.cbw-light .cbw-item.pinned { border-color: rgba(0, 95, 184, 0.35); }
+.cbw-dark .cbw-item.pinned { border-color: rgba(96, 205, 255, 0.35); }
+.cbw-light .cbw-item.pinned.selected { border-color: #1b1b1b; }
+.cbw-dark .cbw-item.pinned.selected { border-color: #ffffff; }
+
+/* ============ Confirmação ao excluir item fixado ============ */
+
+.cbw-confirm-overlay { border-radius: 8px; }
+.cbw-confirm-overlay.cbw-light { background-color: rgba(243, 243, 243, 0.75); }
+.cbw-confirm-overlay.cbw-dark { background-color: rgba(32, 32, 32, 0.75); }
+
+.cbw-confirm {
+  border-radius: 8px;
+  border-width: 1px;
+  padding: 16px 16px 12px 16px;
+  spacing: 8px;
+  min-width: 260px;
+}
+.cbw-confirm.cbw-light { background-color: #fbfbfb; border-color: rgba(0,0,0,0.14); box-shadow: 0 6px 18px rgba(0,0,0,0.22); color: #1b1b1b; }
+.cbw-confirm.cbw-dark { background-color: #2c2c2c; border-color: rgba(255,255,255,0.12); box-shadow: 0 6px 18px rgba(0,0,0,0.5); color: #ffffff; }
+
+.cbw-confirm-title { font-weight: bold; font-size: 10.5pt; }
+.cbw-confirm-text { font-size: 9pt; }
+.cbw-light .cbw-confirm-text { color: #5c5c5c; }
+.cbw-dark .cbw-confirm-text { color: #c5c5c5; }
+
+.cbw-confirm-buttons { spacing: 8px; padding-top: 6px; }
+.cbw-confirm-btn { padding: 5px 14px; border-radius: 4px; border-width: 1px; font-size: 9pt; }
+.cbw-light .cbw-confirm-btn { background-color: #ffffff; border-color: #d6d6d6; }
+.cbw-light .cbw-confirm-btn:hover { background-color: #f0f0f0; }
+.cbw-dark .cbw-confirm-btn { background-color: #353535; border-color: #454545; }
+.cbw-dark .cbw-confirm-btn:hover { background-color: #3d3d3d; }
+
+.cbw-light .cbw-confirm-btn.cbw-confirm-danger { background-color: #c42b1c; border-color: #c42b1c; color: #ffffff; }
+.cbw-light .cbw-confirm-btn.cbw-confirm-danger:hover { background-color: #b12719; }
+.cbw-dark .cbw-confirm-btn.cbw-confirm-danger { background-color: rgba(255, 99, 99, 0.85); border-color: transparent; color: #1b1b1b; }
+.cbw-dark .cbw-confirm-btn.cbw-confirm-danger:hover { background-color: rgba(255, 99, 99, 1); }

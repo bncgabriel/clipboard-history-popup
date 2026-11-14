@@ -1,0 +1,9 @@
+{
+  "uuid": "clipboard-history-popup@bncgabriel.github.io",
+  "name": "Clipboard History Popup",
+  "description": "A floating clipboard history that opens right next to the text cursor, like Win+V on other systems.\n\nPick an item with the mouse or the arrow keys and it is pasted into the field you were typing in. Pin items to keep them after a reboot, see previews of copied images and remove entries you no longer need.\n\nThis extension reads the clipboard to build the history. The history is stored only on your computer and is never sent anywhere. Unpinned items are cleared on logout or reboot; pinned items are saved in ~/.local/share/clipboard-history-popup. Content marked as secret by password managers is ignored.\n\nNo keyboard shortcut is set by default: choose one (Super+V is suggested) in the extension preferences.",
+  "shell-version": ["46", "47", "48", "49", "50"],
+  "url": "https://github.com/bncgabriel/clipboard-history-popup",
+  "settings-schema": "org.gnome.shell.extensions.clipboard-history-popup",
+  "gettext-domain": "clipboard-history-popup"
+}
