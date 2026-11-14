@@ -33,7 +33,7 @@ Coming soon.
 ```bash
 git clone https://github.com/bncgabriel/clipboard-history-popup.git
 cd clipboard-history-popup
-./install.sh
+bash install.sh
 ```
 
 On Wayland, log out and back in, then enable it:
@@ -68,8 +68,8 @@ GNOME Shell 46, 47, 48, 49 and 50.
 
 ## Development
 
-- `./pack.sh` builds the ZIP for extensions.gnome.org in `dist/`.
-- `./install.sh` builds and installs it for the current user.
+- `bash pack.sh` builds the ZIP for extensions.gnome.org in `dist/`.
+- `bash install.sh` builds and installs it for the current user.
 - Test changes without logging out in a nested session: `dbus-run-session gnome-shell --devkit --wayland` (GNOME 49+, package `mutter-dev-bin`).
 - Logs: `journalctl -f -o cat /usr/bin/gnome-shell`
 

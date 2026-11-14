@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 UUID="clipboard-history-popup@bncgabriel.github.io"
-./pack.sh
+bash pack.sh
 gnome-extensions install --force "dist/$UUID.shell-extension.zip"
 
 echo
